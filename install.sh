@@ -15,10 +15,18 @@ clear
 # ===== SOUND =====
 beep() { printf '\a'; }
 
-# ===== PASSWORD CHECK =====
-echo -e "${PINK}🔐 ENTER ACCESS PASSWORD:${NC}"
-read -s input
+# ===== PASSWORD INPUT (FIX) =====
+if [ -t 0 ]; then
+  # Mode normal (bash install.sh)
+  echo -e "${PINK}🔐 ENTER ACCESS PASSWORD:${NC}"
+  read -s -p "Password: " input
+  echo ""
+else
+  # Mode curl | bash (pakai argumen)
+  input="$1"
+fi
 
+# ===== VALIDASI =====
 if [ "$input" != "$PASSWORD" ]; then
   echo -e "${RED}❌ WRONG PASSWORD! ACCESS DENIED${NC}"
   beep
@@ -32,7 +40,7 @@ sleep 1
 
 clear
 
-# ===== MATRIX EFFECT =====
+# ===== MATRIX =====
 matrix() {
   echo -e "\033[1;32m"
   cols=$(tput cols)
@@ -47,45 +55,26 @@ matrix() {
   done
 }
 
-# ===== HACKER TEXT =====
-hacker_text() {
-  echo -e "${CYAN}"
-  echo "Initializing secure system..."
-  sleep 0.5
-  echo "Bypassing firewall..."
-  sleep 0.5
-  echo "Decrypting packets..."
-  sleep 0.5
-  echo "Injecting payload..."
-  sleep 0.5
-  echo "Access granted ✔"
-  sleep 0.5
-  echo -e "${NC}"
-}
-
-# ===== HEADER =====
-echo -e "${PINK}"
-echo "╔══════════════════════════════════════╗"
-echo "║   💀 FLOREZA CYBER INSTALLER 💀     ║"
-echo "║     LOCKED DEPLOY SYSTEM            ║"
-echo "╚══════════════════════════════════════╝"
-echo -e "${NC}"
-
-beep
-sleep 1
-
-# ===== MATRIX =====
 echo -e "${GREEN}ENTERING MATRIX...${NC}"
 (matrix &) 
 pid=$!
-
 sleep 3
-
 kill $pid
 clear
 
 # ===== HACKER TEXT =====
-hacker_text
+echo -e "${CYAN}"
+echo "Initializing secure system..."
+sleep 0.5
+echo "Bypassing firewall..."
+sleep 0.5
+echo "Decrypting packets..."
+sleep 0.5
+echo "Injecting payload..."
+sleep 0.5
+echo "Access granted ✔"
+sleep 0.5
+echo -e "${NC}"
 
 # ===== PROGRESS =====
 loading() {
