@@ -4,10 +4,12 @@
 PASSWORD="@Kosay389%"
 
 # ===== COLOR =====
+RED='\033[1;31m'
 GREEN='\033[1;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[1;34m'
 PINK='\033[1;35m'
 CYAN='\033[1;36m'
-RED='\033[1;31m'
 NC='\033[0m'
 
 clear
@@ -15,90 +17,64 @@ clear
 # ===== SOUND =====
 beep() { printf '\a'; }
 
-# ===== PASSWORD INPUT (FIX) =====
-if [ -t 0 ]; then
-  # Mode normal (bash install.sh)
-  echo -e "${PINK}🔐 ENTER ACCESS PASSWORD:${NC}"
-  read -s -p "Password: " input
-  echo ""
-else
-  # Mode curl | bash (pakai argumen)
+# ===== PASSWORD =====
+if [ -n "$1" ]; then
   input="$1"
+else
+  echo -e "${PINK}🔐 ENTER ACCESS PASSWORD:${NC}"
+  read input
 fi
 
-# ===== VALIDASI =====
 if [ "$input" != "$PASSWORD" ]; then
   echo -e "${RED}❌ WRONG PASSWORD! ACCESS DENIED${NC}"
   beep
   sleep 2
-  exit
+  exit 1
 fi
 
 echo -e "${GREEN}✅ ACCESS GRANTED${NC}"
 beep
 sleep 1
-
 clear
 
-# ===== MATRIX =====
-matrix() {
-  echo -e "\033[1;32m"
-  cols=$(tput cols)
-  while true; do
-    line=""
-    for ((i=0; i<cols; i++)); do
-      rand=$((RANDOM % 2))
-      [ $rand -eq 0 ] && line="${line}0" || line="${line}1"
-    done
-    echo -e "$line"
+# ===== COLORFUL PROGRESS BAR =====
+progress_bar() {
+  width=40
+  for ((i=0; i<=width; i++)); do
+    percent=$(( i * 100 / width ))
+
+    case $((i % 6)) in
+      0) color=$RED ;;
+      1) color=$GREEN ;;
+      2) color=$YELLOW ;;
+      3) color=$BLUE ;;
+      4) color=$PINK ;;
+      5) color=$CYAN ;;
+    esac
+
+    filled=$(printf "%${i}s" | tr ' ' '█')
+    empty=$(printf "%$((width-i))s")
+
+    printf "\r${color}[%-40s] %3d%%${NC}" "$filled$empty" "$percent"
     sleep 0.02
-  done
-}
-
-echo -e "${GREEN}ENTERING MATRIX...${NC}"
-(matrix &) 
-pid=$!
-sleep 3
-kill $pid
-clear
-
-# ===== HACKER TEXT =====
-echo -e "${CYAN}"
-echo "Initializing secure system..."
-sleep 0.5
-echo "Bypassing firewall..."
-sleep 0.5
-echo "Decrypting packets..."
-sleep 0.5
-echo "Injecting payload..."
-sleep 0.5
-echo "Access granted ✔"
-sleep 0.5
-echo -e "${NC}"
-
-# ===== PROGRESS =====
-loading() {
-  for i in {1..30}; do
-    echo -ne "${GREEN}█${NC}"
-    sleep 0.03
   done
   echo ""
   beep
 }
 
 step() {
-  echo -e "${PINK}➤ $1...${NC}"
-  loading
+  echo -e "${PINK}➤ $1${NC}"
+  progress_bar
 }
 
 # ===== INSTALL =====
 step "Updating system"
 pkg update -y > /dev/null 2>&1
 
-step "Installing core packages"
+step "Installing packages"
 pkg install -y python xray cloudflared git curl > /dev/null 2>&1
 
-step "Installing Python modules"
+step "Installing python module"
 pip install flask > /dev/null 2>&1
 
 step "Cloning repository"
@@ -106,7 +82,7 @@ cd ~
 rm -rf server
 git clone https://github.com/karisnacell69/server.git > /dev/null 2>&1
 
-step "Configuring environment"
+step "Configuring server"
 cd server
 chmod +x run.sh
 [ ! -f users.json ] && echo "[]" > users.json
@@ -116,13 +92,11 @@ ulimit -n 100000
 
 # ===== FINAL =====
 echo -e "${GREEN}"
-echo "╔══════════════════════════════════════╗"
-echo "║        ✅ SYSTEM DEPLOYED            ║"
-echo "║     Launching server now...          ║"
-echo "╚══════════════════════════════════════╝"
+echo "======================================"
+echo "     ✅ INSTALL SUCCESS & RUNNING      "
+echo "======================================"
 echo -e "${NC}"
 
-beep
 sleep 2
 
 # ===== RUN =====
